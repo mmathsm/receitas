@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1e3a5f; /* Azul marinho */
+            color: #fff; /* Branco */
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header h1, .header p {
+            margin: 0;
+            color: #fff; /* Branco */
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .search-bar input {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .search-bar button {
+            padding: 10px;
+            border: none;
+            background-color: #333;
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .search-bar button:hover {
+            background-color: #555;
+        }
+        .search-bar button.add {
+            border-radius: 5px;
+            margin-left: 10px;
+            background-color: #28a745; /* Verde */
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .search-bar button.add:hover {
+            background-color: #218838;
+        }
+        .search-bar button.list {
+            border-radius: 5px;
+            margin-left: 10px;
+            background-color: #007bff; /* Azul */
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .search-bar button.list:hover {
+            background-color: #0056b3;
+        }
+        .recipes {
+            list-style-type: none;
+            padding: 0;
+            display: none; /* Esconde a lista por padrão */
+        }
+        .recipes li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff; /* Branco */
+            color: #333; /* Preto */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .recipes li:hover {
+            background-color: #f1f1f1;
+            transform: translateY(-2px);
+        }
+        .recipe-details {
+            display: none;
+            text-align: left;
+            background-color: #fff; /* Branco */
+            color: #333; /* Preto */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .recipe-details h2 {
+            margin-top: 0;
+        }
+                .recipe-details .close, .recipe-details .delete {
+            cursor: pointer;
+            color: #e74c3c; /* Vermelho */
+        }
+        .recipe-details .delete {
+            float: right;
+        }
+        #addRecipeForm {
+            display: none;
+            text-align: left;
+            background-color: #fff; /* Branco */
+            color: #333; /* Preto */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        #addRecipeForm h2 {
+            margin-top: 0;
+        }
+        #addRecipeForm input, #addRecipeForm textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #addRecipeForm button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745; /* Verde */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        #addRecipeForm button:hover {
+            background-color: #218838;
+        }
+        #addRecipeForm button.cancel {
+            background-color: #dc3545; /* Vermelho */
+            margin-left: 10px;
+        }
+        #addRecipeForm button.cancel:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Receitas</h1>
+        <p>Feito por Math</p>
+    </div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Procurar receitas..." onkeyup="searchRecipes()">
+        <button class="add" onclick="showAddRecipeForm()">+</button>
+        <button class="list" id="toggleListButton" onclick="toggleRecipeList()">📋</button>
+        <button onclick="exportRecipes()">Exportar Receitas</button>
+        <input type="file" id="fileInput" accept=".json" onchange="importRecipes()" style="display: none;">
+        <button onclick="document.getElementById('fileInput').click()">Importar Receitas</button>
+    </div>
+    <ul class="recipes" id="recipesList"></ul>
+
+    <div class="recipe-details" id="recipeDetails">
+        <span class="close" onclick="hideRecipeDetails()">X</span>
+        <h2 id="detailsTitle"></h2>
+        <span class="delete" onclick="deleteRecipe()">🗑</span>
+        <p><strong>Ingredientes:</strong></p>
+        <p id="detailsIngredients"></p>
+        <p><strong>Modo de Preparo:</strong></p>
+        <p id="detailsInstructions"></p>
+        <p><strong>Observações:</strong></p>
+        <p id="detailsObservations"></p>
+        <p><strong>Link:</strong> <a id="detailsLink" href="#" target="_blank">Link</a></p>
+    </div>
+
+    <div id="addRecipeForm">
+        <h2>Adicionar Receita</h2>
+        <input type="text" id="newTitle" placeholder="Título"><br><br>
+        <textarea id="newIngredients" placeholder="Ingredientes"></textarea><br><br>
+        <textarea id="newInstructions" placeholder="Modo de Preparo"></textarea><br><br>
+        <textarea id="newObservations" placeholder="Observações"></textarea><br><br>
+        <input type="text" id="newLink" placeholder="Link"><br><br>
+        <button onclick="addRecipe()">Adicionar</button>
+        <button class="cancel" onclick="hideAddRecipeForm()">Cancelar</button>
+    </div>
+
+    <script>
+        let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+        let currentRecipeIndex = -1;
+
+        function searchRecipes() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filteredRecipes = recipes.filter(recipe => recipe.title.toLowerCase().includes(query));
+            renderRecipes(filteredRecipes);
+            document.getElementById('recipesList').style.display = 'block';
+        }
+
+        function toggleRecipeList() {
+            const recipesList = document.getElementById('recipesList');
+            const toggleButton = document.getElementById('toggleListButton');
+            if (recipesList.style.display === 'none' || recipesList.style.display === '') {
+                recipesList.style.display = 'block';
+                toggleButton.textContent = '🔽';
+            } else {
+                recipesList.style.display = 'none';
+                toggleButton.textContent = '📋';
+            }
+        }
+
+        function renderRecipes(recipeArray) {
+            const recipesList = document.getElementById('recipesList');
+            recipesList.innerHTML = '';
+            recipeArray.forEach((recipe, index) => {
+                const li = document.createElement('li');
+                li.textContent = recipe.title;
+                li.onclick = () => showRecipeDetails(index);
+                recipesList.appendChild(li);
+            });
+        }
+
+        function showAddRecipeForm() {
+            document.getElementById('addRecipeForm').style.display = 'block';
+        }
+
+        function hideAddRecipeForm() {
+            document.getElementById('addRecipeForm').style.display = 'none';
+        }
+
+        function exportRecipes() {
+            const recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "recipes.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importRecipes() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const recipes = JSON.parse(event.target.result);
+                localStorage.setItem('recipes', JSON.stringify(recipes));
+                renderRecipes(recipes);
+                document.getElementById('recipesList').style.display = 'block'; // Exibe a lista após importar
+            };
+            reader.readAsText(file);
+        }
+
+        function addRecipe() {
+            const title = document.getElementById('newTitle').value;
+            const ingredients = document.getElementById('newIngredients').value;
+            const instructions = document.getElementById('newInstructions').value;
+            const observations = document.getElementById('newObservations').value;
+            const link = document.getElementById('newLink').value;
+
+            if (title && ingredients && instructions && observations && link) {
+                recipes.push({ title, ingredients, instructions, observations, link });
+                localStorage.setItem('recipes', JSON.stringify(recipes));
+                hideAddRecipeForm();
+                renderRecipes(recipes); // Atualiza a lista de receitas após adicionar uma nova receita
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        }
+
+        function showRecipeDetails(index) {
+            currentRecipeIndex = index;
+            const recipe = recipes[index];
+            document.getElementById('detailsTitle').textContent = recipe.title;
+            document.getElementById('detailsIngredients').textContent = recipe.ingredients;
+            document.getElementById('detailsInstructions').textContent = recipe.instructions;
+                        document.getElementById('detailsObservations').textContent = recipe.observations;
+            document.getElementById('detailsLink').href = recipe.link;
+            document.getElementById('detailsLink').textContent = recipe.link;
+            document.getElementById('recipeDetails').style.display = 'block';
+        }
+
+        function hideRecipeDetails() {
+            document.getElementById('recipeDetails').style.display = 'none';
+        }
+
+        function deleteRecipe() {
+            if (currentRecipeIndex > -1) {
+                recipes.splice(currentRecipeIndex, 1);
+                localStorage.setItem('recipes', JSON.stringify(recipes));
+                hideRecipeDetails();
+                renderRecipes(recipes); // Atualiza a lista de receitas após a exclusão
+            }
+        }
+
+        // Inicializa a lista de receitas oculta por padrão
+        document.getElementById('recipesList').style.display = 'none';
+        // Renderiza a lista de receitas armazenadas no localStorage ao carregar a página
+        renderRecipes(recipes);
+    </script>
+</body>
+</html>
